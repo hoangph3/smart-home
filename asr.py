@@ -1,26 +1,25 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Dec 16 20:16:32 2020
+import speech_recognition as sr
+#import pyttsx3
+# engine = pyttsx3.init()
+# engine.setProperty('rate', 200)
+# engine.setProperty('volume', 0.9)
 
-@author: hoangph3
-"""
+r = sr.Recognizer()
 
-import warnings
-warnings.filterwarnings('ignore')
-import nemo.collections.asr as nemo_asr
-
-quartznet = nemo_asr.models.EncDecCTCModel.from_pretrained(model_name="QuartzNet15x5Base-En")
-
-Audio_sample = 'a.wav'
-
-# Convert our audio sample to text
-files = [Audio_sample]
-raw_text = ''
-for fname, transcription in zip(files, quartznet.transcribe(paths2audio_files=files)):
-  raw_text = transcription
-  
-try:
-    print("You: ", raw_text)
-except:
-    pass
+speech = sr.Microphone()
+with speech as source:    
+     audio = r.adjust_for_ambient_noise(source)    
+     audio = r.listen(source)
+try:    
+    recog = r.recognize_google(audio, language = 'vi-VN')    
+    print(recog)    
+    # engine.say("You said: " + recog)    
+    # engine.runAndWait()
+except sr.UnknownValueError:
+	print("I don't understand !")    
+    # engine.say("I don't understand")    
+    # engine.runAndWait()
+except sr.RequestError as e:
+	print("Request error !")    
+    # engine.say("Request error")
+    # engine.runAndWait()

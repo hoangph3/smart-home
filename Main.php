@@ -1,9 +1,15 @@
-<?php 
-session_start();
-if (isset($_SESSION['username']))  {
+<?php require_once 'database.php';
+$id=0; 
+$pdo = Database::connect();
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$sql = 'SELECT * FROM user WHERE ID = ?';
+$q = $pdo->prepare($sql);
+$q->execute(array($id));
+$data = $q->fetch(PDO::FETCH_ASSOC);
+Database::disconnect();
+if ($data['auth'] == 1) {
     $Write="<?php $" . "getLEDStatusFromNodeMCU=''; " . "echo $" . "getLEDStatusFromNodeMCU;" . " ?>";
     file_put_contents('LEDStatContainer.php',$Write);
-    
     $setLEDStatusFromServer = file_get_contents('SetData.php'); ?>
 <!DOCTYPE html>
 <html>
@@ -12,13 +18,6 @@ if (isset($_SESSION['username']))  {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="css/demo.css">
-    <style> body {
-        background-image: url('css/background.jpg');
-        background-repeat: no-repeat;
-        background-attachment: fixed;  
-        background-size: cover;
-    }
-    </style>
     <script src="js/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
@@ -30,7 +29,7 @@ if (isset($_SESSION['username']))  {
     </script>
 </head>
 <body>
-<h1>Powered by <a href='#'><?=$_SESSION['username']?></a></h1>
+<h1 class="text-center">Welcome to Smart Home</h1>
 <div class="w3-container" align="left">
     <h1 style="display: inline-block;"> Light control </h1>
     <a style="float: right; font-size: 24px; font-weight: bold;" href="log_out.php">Log out</a>
