@@ -1,1 +1,1 @@
-<?php $getLEDStatusFromNodeMCU=''; echo $getLEDStatusFromNodeMCU; ?>
+<?php $getLEDStatusFromNodeMCU='0'; echo $getLEDStatusFromNodeMCU; ?>

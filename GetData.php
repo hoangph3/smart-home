@@ -10,6 +10,7 @@ if (!empty($_POST)) {
   $data = $q->fetch(PDO::FETCH_ASSOC);
   Database::disconnect();
   
+  echo $data['Color'];
   echo $data['Stat'];
 }
 ?>
