@@ -1,5 +1,4 @@
 <?php declare(strict_types=1);
-require_once 'utils.php';
 require_once "vendor/autoload.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -8,7 +7,7 @@ use PHPMailer\PHPMailer\Exception;
 
 // Save image
 $img = $_POST['image'];
-$folderPath = "upload/";
+$folderPath = "css/";
 
 $image_parts = explode(";base64,", $img);
 $image_type_aux = explode("image/", $image_parts[0]);
@@ -20,12 +19,10 @@ $fileName = uniqid() . '.png';
 $file = $folderPath . $fileName;
 file_put_contents($file, $image_base64);
 
-print_r($fileName);
-
 // Send image
 $mail = new PHPMailer(true);
 //Enable SMTP debugging.
-$mail->SMTPDebug = 1;                               
+$mail->SMTPDebug = 0;                               
 //Set PHPMailer to use SMTP.
 $mail->isSMTP();            
 //Set SMTP host name                          
@@ -51,12 +48,9 @@ $mail->Subject = "Notification";
 $mail->Body = '<h2>Do you know me? :)</h2>' . '<img src="cid:avatar">';
 
 $mail->addEmbeddedImage(dirname(__FILE__) . '/' . $file, 'avatar');
-try {
-    $mail->send();
-    echo "Message has been sent successfully!";
-} 
-catch (Exception $e) {
-    echo "Mailer Error: " . $mail->ErrorInfo;
-}
+
+$mail->send();
+
+unlink($file);
 
 echo "<script>window.location.assign('index.php')</script>";

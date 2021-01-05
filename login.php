@@ -1,24 +1,29 @@
-<?php require_once 'utils.php';
+<?php require_once 'database.php';
 if (isset($_POST['dangnhap'])) 
 {
-    $conn = connect_db();
-    $s_username = addslashes($_POST['username']);
-    $s_userpwd = addslashes($_POST['userpwd']);
-     
-	$sql = " select * from user where username = '$s_username' and userpwd = '$s_userpwd' ";
-    $query = mysqli_query($conn, $sql);
-    $user = mysqli_fetch_array($query);     
+    $username = addslashes($_POST['username']);
+    $userpwd = addslashes($_POST['userpwd']);
 
-    if (mysqli_num_rows($query) > 0) {
+    $pdo = Database::connect();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $sql = 'SELECT * FROM user WHERE username = ? AND userpwd = ?';
+    $q = $pdo->prepare($sql);
+    $q->execute(array($username, $userpwd));
+    $data = $q->fetch(PDO::FETCH_ASSOC);
+
+    if (!empty($data)) {
         $sql = "UPDATE statusled SET Stat = 100 WHERE ID = 0";
-        execute($sql);
+        $q = $pdo->prepare($sql);
+        $q->execute();
         $sql = "UPDATE user SET auth = 1 WHERE ID = 0";
-        execute($sql);
+        $q = $pdo->prepare($sql);
+        $q->execute();
         header("location: Main.php");
     }
 	else {
 		header("location: login.php");
-	}
+    }
+    Database::disconnect();
 }
 ?>
 <html>

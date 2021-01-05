@@ -1,10 +1,9 @@
 <?php require_once 'database.php';
-$id=0; 
 $pdo = Database::connect();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$sql = 'SELECT * FROM user WHERE ID = ?';
+$sql = 'SELECT * FROM user WHERE ID = 0';
 $q = $pdo->prepare($sql);
-$q->execute(array($id));
+$q->execute();
 $data = $q->fetch(PDO::FETCH_ASSOC);
 Database::disconnect();
 ?>
