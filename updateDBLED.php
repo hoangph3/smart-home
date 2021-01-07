@@ -17,6 +17,10 @@
     $q = $pdo->prepare($sql);
     $q->execute(array($Stat,$Color));
     Database::disconnect();
+
+    $Write="<?php $" . "Color='" . $Color . "'; ";
+    file_put_contents('SetData.php', $Write);
+
     header("Location: Main.php");
   }
 ?>
