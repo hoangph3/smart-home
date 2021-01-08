@@ -14,12 +14,17 @@ if ($data['auth'] == 1) {
     file_put_contents('LEDStatContainer.php',$Write);
 
     //Control via home assistant
-    $sql = "UPDATE statusled SET Color = ? WHERE ID = 0";
+    $sql = "UPDATE statusled SET Stat = ?, Color = ? WHERE ID = 0";
     $q = $pdo->prepare($sql);
-    $q->execute(array($Color));
+    $q->execute(array($Stat,$Color));
+    
+    //Read sensor
+    $sql = 'SELECT * FROM sensor WHERE ID = 0';
+    $q = $pdo->prepare($sql);
+    $q->execute();
+    $sensor = $q->fetch(PDO::FETCH_ASSOC);
     Database::disconnect();
     ?>
-
     <!DOCTYPE html>
     <html>
     <head>
@@ -28,6 +33,7 @@ if ($data['auth'] == 1) {
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="css/w3.css">
         <script src="js/jquery.min.js"></script>
+        <script src="js/fire.js"></script>
         <script>
             $(document).ready(function(){
                 $("#getLEDStatus").load("LEDStatContainer.php");
@@ -39,7 +45,7 @@ if ($data['auth'] == 1) {
     </head>
     <body>
     <div class="w3-container" align="left">
-        <h2 style="display: inline-block;"> Light control </h2>
+        <h2 style="display: inline-block;"> Light control</h2>
         <a style="float: right; font-size: 24px; font-weight: bold;" href="log_out.php">Log out</a>
         <!-- Controlling voltage -->
         <form action="updateDBLED.php" method="post" id="LED_MAX">
@@ -98,10 +104,22 @@ if ($data['auth'] == 1) {
             document.getElementById("ledstatus").innerHTML = "Loading ...";
         }
         }
-    </script>  
+    </script>
+    <h2>Sensor</h2>
+    <h4>Temperature: <?=$sensor['temp']?> &#176C</h4>
+    <h4>Humidity: <?=$sensor['humi']?> %</h4>
+    
+    <h2>Warning</h2>
+    <?php 
+    if ($sensor['pir']==1) echo '<h4>' . 'Có trộm </h4>';
+    else echo '<h4>' . 'Không có trộm </h4>';
+    if ($sensor['flame']==0) echo '<h4>' . 'Có cháy </h4>';
+    else echo '<h4>' . 'Không có cháy </h4>';
+    ?>
     </body>
     </html>
-    <?php }
+    <?php 
+    }
 else {
     header("location: log_out.php");
 }

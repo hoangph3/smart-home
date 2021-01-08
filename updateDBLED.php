@@ -18,7 +18,7 @@
     $q->execute(array($Stat,$Color));
     Database::disconnect();
 
-    $Write="<?php $" . "Color='" . $Color . "'; ";
+    $Write="<?php $" . "Stat=" . $Stat . "; $" . "Color='" . $Color . "'; ";
     file_put_contents('SetData.php', $Write);
 
     header("Location: Main.php");

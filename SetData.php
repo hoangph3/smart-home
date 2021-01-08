@@ -1,1 +1,1 @@
-<?php $Color='R'; 
+<?php $Stat=100; $Color='G'; 

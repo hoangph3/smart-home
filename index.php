@@ -11,24 +11,28 @@ Database::disconnect();
 <html>
 <head>
     <title>Security Camera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="js/jquery.min.js"></script>
     <script src="js/webcam.min.js"></script>
+    <script src="js/fire.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css"/>
 </head>
 <body>
-<br/>
+<div class="container">
+    <h5><a href="login.php" style="float:right;">Login</a></h5>
+</div>
 <div class="container">
     <h1 class="text-center">Security Camera</h1>
     <form method="POST" action="authentication.php">
         <div class="row">
             <div class="col-md-6 text-center">
-                <input type=button class="btn btn-info" value="Shoot" onclick="take_snapshot()">
+                <input type=button class="btn btn-primary btn-lg" value="Shoot" onclick="take_snapshot()">
                 <br/><br/>
                 <div id="my_camera"></div>
                 <input type="hidden" name="image" class="image-tag">
             </div>
             <div class="col-md-6 text-center">
-                <button class="btn btn-success">Submit</button>
+                <button class="btn btn-success btn-lg">Submit</button>
                 <br/><br/>
                 <div id="results"></div>
             </div>

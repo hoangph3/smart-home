@@ -1,35 +1,8 @@
-<?php require_once 'database.php';
-if (isset($_POST['dangnhap'])) 
-{
-    $username = addslashes($_POST['username']);
-    $userpwd = addslashes($_POST['userpwd']);
-
-    $pdo = Database::connect();
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $sql = 'SELECT * FROM user WHERE username = ? AND userpwd = ?';
-    $q = $pdo->prepare($sql);
-    $q->execute(array($username, $userpwd));
-    $data = $q->fetch(PDO::FETCH_ASSOC);
-
-    if (!empty($data)) {
-        $sql = "UPDATE statusled SET Stat = 100 WHERE ID = 0";
-        $q = $pdo->prepare($sql);
-        $q->execute();
-        $sql = "UPDATE user SET auth = 1 WHERE ID = 0";
-        $q = $pdo->prepare($sql);
-        $q->execute();
-        header("location: Main.php");
-    }
-	else {
-		header("location: login.php");
-    }
-    Database::disconnect();
-}
-?>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
-    <style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
 body {font-family: Arial, Helvetica, sans-serif;}
 
 /* Full-width input fields */
@@ -72,12 +45,12 @@ button:hover {
 }
 
 img.avatar {
-  width: 30%;
+  width: 40%;
   border-radius: 50%;
 }
 
 .container {
-  padding: 5px;
+  padding: 16px;
 }
 
 span.psw {
@@ -153,22 +126,50 @@ span.psw {
 </style>
 </head>
 <body>
-<form class="container" method="post">
-<div class="imgcontainer">
-    <img src="css/avatar2.png" alt="Avatar" class="avatar">
-</div>
-<div class="container">
-    <label for="uname"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="username" required>
 
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="userpwd" required>
-    
-    <button type="submit" name="dangnhap" id="dangnhap">Sign in</button> 
-    <label>
-    <input type="checkbox" checked="checked" name="remember"> Remember me
-    </label>
+<h2>Modal Login Form</h2>
+
+<button onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Login</button>
+
+<div id="id01" class="modal">
+  
+  <form class="modal-content animate" action="/action_page.php" method="post">
+    <div class="imgcontainer">
+      <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+      <img src="css/avatar2.png" alt="Avatar" class="avatar">
+    </div>
+
+    <div class="container">
+      <label for="uname"><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="uname" required>
+
+      <label for="psw"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="psw" required>
+        
+      <button type="submit">Login</button>
+      <label>
+        <input type="checkbox" checked="checked" name="remember"> Remember me
+      </label>
+    </div>
+
+    <div class="container" style="background-color:#f1f1f1">
+      <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
+      <span class="psw">Forgot <a href="#">password?</a></span>
+    </div>
+  </form>
 </div>
-</form>
+
+<script>
+// Get the modal
+var modal = document.getElementById('id01');
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
+
 </body>
 </html>
