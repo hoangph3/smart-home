@@ -232,7 +232,7 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
             <td><i class="fa fa-thermometer w3-text-orange w3-large"></i></td>
             <td>Heating system</td>
             <td>
-            ...
+            &#9829;
             </td>
           </tr>
           <tr>
