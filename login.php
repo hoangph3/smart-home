@@ -1,4 +1,5 @@
 <?php require_once 'database.php';
+session_start();
 if (isset($_POST['dangnhap'])) 
 {
     $username = addslashes($_POST['username']);
@@ -18,6 +19,7 @@ if (isset($_POST['dangnhap']))
         $sql = "UPDATE user SET auth = 1 WHERE ID = 0";
         $q = $pdo->prepare($sql);
         $q->execute();
+        $_SESSION['username'] = $data['username'];
         header("location: Main.php");
     }
 	else {

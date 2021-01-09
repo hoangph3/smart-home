@@ -14,7 +14,6 @@ Database::disconnect();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="js/jquery.min.js"></script>
     <script src="js/webcam.min.js"></script>
-    <script src="js/fire.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css"/>
 </head>
 <body>

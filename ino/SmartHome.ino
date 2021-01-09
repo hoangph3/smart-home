@@ -1,7 +1,14 @@
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266HTTPClient.h>
 #include "DHT.h"
+
+//Pins DC Motor
+int ENA = 5;
+int IN1 = 16;
+int IN2 = 15;
 
 #define LED_D6 12 //LED RED
 #define LED_D7 13 //LED GREEN
@@ -9,11 +16,11 @@
 DHT dht(14, DHT11);
 
 //Config wifi
-const char* ssid = "MIT";
+const char* ssid = "hoangmit";
 const char* password = "28062017";
 
 //Config ip localhost
-const char *host = "http://192.168.1.18/";
+const char *host = "http://192.168.43.33/";
 
 void setup() {
   Serial.begin(115200);
@@ -29,6 +36,8 @@ void setup() {
   
   pinMode(0,OUTPUT); //pin Buzz
   digitalWrite(0, LOW);
+
+  pinMode(5, OUTPUT);//pin Fan
   
   pinMode(LED_D6,OUTPUT);
   digitalWrite(LED_D6, LOW);
@@ -56,7 +65,6 @@ int flameSensor() {
   int flameValue = digitalRead(4);
   Serial.print("Flame Sensor Value: ");
   Serial.println(flameValue);
-  delay(1);
   return flameValue;
 }
 
@@ -64,18 +72,23 @@ int pirSensor() {
   int pirValue = digitalRead(2);
   Serial.print("PIR Sensor Value: ");
   Serial.println(pirValue);
-  delay(1);
   return pirValue;
 }
 
-void dhtSensor(){
-  float h = dht.readHumidity();    
+float readTemp(){
   float t = dht.readTemperature();
+  Serial.println();
+  Serial.print("Temperature: ");
+  Serial.println(t);
+  return t;
+}
+
+float readHumi(){
+  float h = dht.readHumidity();    
   Serial.println();
   Serial.print("Humidity: ");
   Serial.println(h);
-  Serial.print("Temperature: ");
-  Serial.println(t);
+  return h;
 }
 
 void loop() {
@@ -99,6 +112,18 @@ void loop() {
   Serial.print("Returned data from Server : ");
   Serial.println(payloadGet); //--> Print request response payload
 
+  //Get FAN Status
+  GetAddress = "Smart_Home/GetDataFan.php";
+  LinkGet = host + GetAddress; //url
+  http.begin(LinkGet); //--> Specify request destination
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");    //Specify content-type header
+  int statusCodeGet = http.POST(getData); //--> Send the request
+  String payloadFan = http.getString(); //--> Get the response payload from server
+  Serial.print("Response Code : "); //--> If Response Code = 200 means Successful connection, if -1 means connection failed. For more information see here : https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+  Serial.println(statusCodeGet); //--> Print HTTP return code
+  Serial.print("Returned data from Server : ");
+  Serial.println(payloadFan); //--> Print request response payload
+
   //Read payloadGet and Write data
   if(payloadGet.substring(0,1)=="R"){
     analogWrite(LED_D6, payloadGet.substring(1).toInt() * 1023 / 100);
@@ -112,20 +137,23 @@ void loop() {
     analogWrite(LED_D8, 0);
     LEDStatResultSend = payloadGet.substring(1); 
   }
-  if(payloadGet.substring(0,1)=="B"){
-    analogWrite(LED_D8, payloadGet.substring(1).toInt() * 1023 / 100);
-    analogWrite(LED_D7, 0);
-    analogWrite(LED_D6, 0);
-    LEDStatResultSend = payloadGet.substring(1); 
-  }
-  if(payloadGet.substring(0,1)=="A"){
-    analogWrite(LED_D6, payloadGet.substring(1).toInt() * 1023 / 100);
-    analogWrite(LED_D7, payloadGet.substring(1).toInt() * 1023 / 100);
-    analogWrite(LED_D8, payloadGet.substring(1).toInt() * 1023 / 100);
-    LEDStatResultSend = payloadGet.substring(1); 
-  }
-
-//  analogWrite(LED_D8, payloadGet.toInt() * 1023 / 100); 
+//  if(payloadGet.substring(0,1)=="B"){
+//    analogWrite(LED_D8, payloadGet.substring(1).toInt() * 1023 / 100);
+//    analogWrite(LED_D7, 0);
+//    analogWrite(LED_D6, 0);
+//    LEDStatResultSend = payloadGet.substring(1); 
+//  }
+//  if(payloadGet.substring(0,1)=="A"){
+//    analogWrite(LED_D6, payloadGet.substring(1).toInt() * 1023 / 100);
+//    analogWrite(LED_D7, payloadGet.substring(1).toInt() * 1023 / 100);
+//    analogWrite(LED_D8, payloadGet.substring(1).toInt() * 1023 / 100);
+//    LEDStatResultSend = payloadGet.substring(1); 
+//  }
+  
+  //Control DC Motor
+  analogWrite(IN1, 1023);
+  analogWrite(IN2, 0);
+  analogWrite(ENA, payloadFan.toInt() * 1023 / 100); 
 //  LEDStatResultSend = payloadGet;
 //  if (payloadGet == "1") {
 //    digitalWrite(LED_D8, HIGH); //--> Turn on Led
@@ -136,6 +164,17 @@ void loop() {
 //    LEDStatResultSend = payloadGet;
 //  }
   //----------------------------------------
+  //Buzz
+  float temp = readTemp();
+  float humi = readHumi();
+  int pirValue = pirSensor();
+  int flameValue = flameSensor();
+  if(pirValue==1 || flameValue==0){
+    digitalWrite(0, HIGH);
+  }
+  else{
+    digitalWrite(0, LOW);
+  }
 
   //----------------------------------------Sends LED status feedback data to server
   Serial.println();
@@ -143,7 +182,7 @@ void loop() {
   String postData, LinkSend, SendAddress;
   SendAddress = "Smart_Home/getLEDStatFromNodeMCU.php";
   LinkSend = host + SendAddress;
-  postData = "getLEDStatusFromNodeMCU=" + LEDStatResultSend;
+  postData = "getLEDStatusFromNodeMCU=" + LEDStatResultSend + "&temp=" + temp + "&humi=" + humi + "&pir=" + pirValue + "&flame=" + flameValue;
   Serial.print("Request Link : ");
   Serial.println(LinkSend);
   http.begin(LinkSend); //--> Specify request destination
@@ -158,18 +197,6 @@ void loop() {
   
   Serial.println("----------------Closing Connection----------------");
   http.end(); //--> Close connection
-  Serial.println();
-  
-  //Buzz
-  dhtSensor();
-  int pirValue = pirSensor();
-  int flameValue = flameSensor();
-  if(pirValue==1 || flameValue==0){
-    digitalWrite(0, HIGH);
-  }
-  else{
-    digitalWrite(0, LOW);
-  }
   Serial.println("Please wait 1 seconds for the next connection.");
   delay(1000);
   Serial.println();

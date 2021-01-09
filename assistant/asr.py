@@ -14,6 +14,7 @@ with speech as source:
 try:
     recog = r.recognize_google(audio, language="vi-VN")
     recog = recog.lower()
+
     if ('bật' in recog and 'đèn' in recog):
         print(1)
     elif ('tắt' in recog and 'đèn' in recog):
@@ -23,6 +24,13 @@ try:
         print('r')
     elif ('xanh' in recog):
         print('g')
+
+    if (('to' in recog and 'quạt' in recog) or ('bật' in recog and 'quạt' in recog)):
+        print('max')
+    elif ('tắt' in recog and 'quạt' in recog):
+        print('min')
+    elif ('nhỏ' in recog and 'quạt' in recog):
+        print('medium')
     
 except sr.UnknownValueError:
     print("I don't understand !")
