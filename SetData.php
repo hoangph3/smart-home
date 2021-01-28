@@ -1,1 +1,1 @@
-<?php $Stat=0; $Color='G'; 
+<?php $Stat=0; $Color='R'; 
